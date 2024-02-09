@@ -1,11 +1,11 @@
 import questionary
 import subprocess
+import sys
 import os
 
 def run_command(command):
     result = subprocess.run(command, shell=True, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-    return result.stdout
-
+    return result.stdou
 def install_ros(version, distribution):
     if version == "1":
         print("Installing ROS1...")
@@ -44,8 +44,14 @@ def install_ros(version, distribution):
 def create_ros_project():
     pass
 
+def create_toml(project_name):
+    pass
 
-def main():
+if __name__ == "__main__":
+    project_name = questionary.text(
+        "What is your project named?",
+        default="my-ros-app"
+    ).ask()
 
     install_ros = questionary.confirm("Do you need to install ROS?").ask()
 
@@ -66,9 +72,7 @@ def main():
                 choices=['galatic', 'foxy'],
             ).ask()
 
-    project_name = questionary.txt(
-        "What is your project named?"
-    ).ask()
+
 
     project_language = questionary.select(
         "Would like to use ROS C++ or ROS Python?",
@@ -81,6 +85,3 @@ def main():
 
     if confirm_install:
         install_ros(ros_version, ros_distribution)
-
-if __name__ == "__main__":
-    main()
