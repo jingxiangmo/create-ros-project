@@ -2,6 +2,7 @@ import questionary
 import subprocess
 import platform
 import toml
+import os
 
 
 def run_command(command, shell=False):
@@ -35,11 +36,10 @@ def check_ros_installation():
     try:
         version_output = subprocess.check_output(['rosversion', '-d'], universal_newlines=True).strip()
         return True, version_output
-    except subprocess.CalledProcessError:
+    except (subprocess.CalledProcessError, FileNotFoundError):
         return False, None
 
-
-def install_ros(os_type, architecture):
+def install_ros(architecture_type, os_type):
     ros_version = questionary.select(
         "Which version of ROS would you like to install?",
         choices=['ROS 1', 'ROS 2'],
@@ -60,6 +60,7 @@ def install_ros(os_type, architecture):
         "Ok to proceed?", default=True
     ).ask()
 
+    return
     if confirm_install:
         run_ros_install()
 
@@ -103,6 +104,13 @@ def run_ros_install(ros_version, ros_distribution):
 
 
 def create_project_files(project_name, license_type, ros_distro):
+
+    os.makedirs(project_name, exist_ok=True)
+
+    toml_file_path = os.path.join(project_name, 'rosproject.toml')
+    readme_file_path = os.path.join(project_name, 'README.md')
+    src_directory_path = os.path.join(project_name, 'src')
+
     data = {
         "project": {
             "name": project_name,
@@ -114,29 +122,33 @@ def create_project_files(project_name, license_type, ros_distro):
         },
         "packages": {},
     }
-    with open('rosproject.toml', 'w') as file:
+
+    with open(toml_file_path, 'w') as file:
         toml.dump(data, file)
-    run_command("touch README.md")
-    run_command("mkdir src")
+
+    with open(readme_file_path, 'w') as file:
+        file.write(f"# {project_name}\n")
+
+    os.makedirs(src_directory_path, exist_ok=True)
 
 
 if __name__ == "__main__":
     project_name = questionary.text("What is your project named?", default="my-ros-project").ask()
 
-    architecture_type, os_type,  = get_system_info()
+    architecture_type, os_type = get_system_info()
     ros_installed, ros_distro = check_ros_installation()
 
     print(
         f"Your computer uses {architecture_type} architecture and {os_type} OS. {f'Current ROS version: {ros_distro}' if ros_installed else 'ROS is not installed.'}")
 
     if not ros_installed:
-        install_ros()
+        install_ros(architecture_type, os_type)
     else:
         new_ros = questionary.confirm(
             "What you like to install another ROS version instead?", default=False
         ).ask()
         if new_ros:
-            install_ros(new_ros)
+            install_ros(architecture_type, os_type)
 
     license_type = questionary.select(
         "Which license would you like to choose?",
