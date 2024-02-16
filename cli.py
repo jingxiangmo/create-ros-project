@@ -3,6 +3,7 @@ import subprocess
 import platform
 import toml
 
+
 def run_command(command, shell=False):
     try:
         result = subprocess.run(command, shell=shell, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
@@ -12,10 +13,22 @@ def run_command(command, shell=False):
         print(f"Command failed: {e}")
         return None
 
+
+def get_os_description():
+    basic_platform = platform.platform(aliased=True, terse=True)
+    if platform.system() == 'Darwin':
+        os_name = "MacOS"
+        os_version = platform.mac_ver()[0]
+    elif platform.system() == 'Linux':
+        os_name, os_version = basic_platform.split('-')[0], basic_platform.split('-')[1]
+    else:
+        os_name_version = basic_platform.split('-')[0]
+        os_name, os_version = os_name_version.rsplit(' ', 1)
+    return f"{os_name} {os_version}"
+
+
 def get_system_info():
-    os_type = platform.system()
-    architecture = platform.machine()
-    return os_type, architecture
+    return platform.machine(), get_os_description()
 
 
 def check_ros_installation():
@@ -25,8 +38,8 @@ def check_ros_installation():
     except subprocess.CalledProcessError:
         return False, None
 
-def install_ros(os_type, architecture):
 
+def install_ros(os_type, architecture):
     ros_version = questionary.select(
         "Which version of ROS would you like to install?",
         choices=['ROS 1', 'ROS 2'],
@@ -49,6 +62,7 @@ def install_ros(os_type, architecture):
 
     if confirm_install:
         run_ros_install()
+
 
 def run_ros_install(ros_version, ros_distribution):
     if ros_version == "1":
@@ -87,6 +101,7 @@ def run_ros_install(ros_version, ros_distribution):
 
     print("ROS installation complete.")
 
+
 def create_project_files(project_name, license_type, ros_distro):
     data = {
         "project": {
@@ -104,12 +119,15 @@ def create_project_files(project_name, license_type, ros_distro):
     run_command("touch README.md")
     run_command("mkdir src")
 
+
 if __name__ == "__main__":
     project_name = questionary.text("What is your project named?", default="my-ros-project").ask()
 
-    os_type, architecture = get_system_info()
+    architecture_type, os_type,  = get_system_info()
     ros_installed, ros_distro = check_ros_installation()
-    print(f"Your computer uses {architecture} architecture and {os_type} OS. {f'Current ROS version: {ros_distro}' if ros_installed else 'ROS is not installed.'}")
+
+    print(
+        f"Your computer uses {architecture_type} architecture and {os_type} OS. {f'Current ROS version: {ros_distro}' if ros_installed else 'ROS is not installed.'}")
 
     if not ros_installed:
         install_ros()
@@ -133,5 +151,3 @@ if __name__ == "__main__":
     create_project_files(project_name, license_type, ros_distro)
 
     print(f"{project_name} setup is complete.")
-
-
