@@ -39,13 +39,14 @@ def check_ros_installation():
     except (subprocess.CalledProcessError, FileNotFoundError):
         return False, None
 
+
 def install_ros(architecture_type, os_type):
     ros_version = questionary.select(
         "Which version of ROS would you like to install?",
         choices=['ROS 1', 'ROS 2'],
     ).ask()
 
-    if (ros_version == 'ROS 1'):
+    if ros_version == 'ROS 1':
         ros_distribution = questionary.select(
             "Which ROS 1 distribution would you like to install?",
             choices=['noetic', 'kinetic', 'melodic'],
@@ -55,14 +56,6 @@ def install_ros(architecture_type, os_type):
             "Which ROS 2 distribution would you like to install?",
             choices=['galatic', 'foxy'],
         ).ask()
-
-    confirm_install = questionary.confirm(
-        "Ok to proceed?", default=True
-    ).ask()
-
-    return
-    if confirm_install:
-        run_ros_install()
 
 
 def run_ros_install(ros_version, ros_distribution):
@@ -104,6 +97,13 @@ def run_ros_install(ros_version, ros_distribution):
 
 
 def create_project_files(project_name, license_type, ros_distro):
+    confirm_install = questionary.confirm(
+        "Ok to proceed?", default=True
+    ).ask()
+
+    # return
+    # if confirm_install:
+    #     run_ros_install()
 
     os.makedirs(project_name, exist_ok=True)
 
@@ -131,6 +131,8 @@ def create_project_files(project_name, license_type, ros_distro):
 
     os.makedirs(src_directory_path, exist_ok=True)
 
+    print(f"\n{project_name} setup is complete.\n")
+
 
 if __name__ == "__main__":
 
@@ -140,7 +142,7 @@ if __name__ == "__main__":
        ] [   OOO      /o|__|   ROS
 """)
 
-    project_name = questionary.text("What is your project named?",).ask()
+    project_name = questionary.text("What is your project named?", ).ask()
 
     architecture_type, os_type = get_system_info()
     ros_installed, ros_distro = check_ros_installation()
@@ -172,5 +174,3 @@ if __name__ == "__main__":
     ).ask()
 
     create_project_files(project_name, license_type, ros_distro)
-
-    print(f"{project_name} setup is complete.")
