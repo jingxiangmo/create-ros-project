@@ -1,4 +1,4 @@
-# create-ros-project
+# Create ROS Project
  Set up a modern robotics project by running one command.
 
  The goals of this project is to:
