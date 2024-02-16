@@ -133,13 +133,20 @@ def create_project_files(project_name, license_type, ros_distro):
 
 
 if __name__ == "__main__":
-    project_name = questionary.text("What is your project named?", default="my-ros-project").ask()
+
+    print("""        ;     /        ,--.     
+       ["]   ["]  ,<  |__**|    
+      /[_]\  [~]\/    |//  |    
+       ] [   OOO      /o|__|   ROS
+""")
+
+    project_name = questionary.text("What is your project named?",).ask()
 
     architecture_type, os_type = get_system_info()
     ros_installed, ros_distro = check_ros_installation()
 
     print(
-        f"Your computer uses {architecture_type} architecture and {os_type} OS. {f'Current ROS version: {ros_distro}' if ros_installed else 'ROS is not installed.'}")
+        f"\nYour computer uses {architecture_type} architecture and {os_type} OS. {f'Current ROS version: {ros_distro}' if ros_installed else 'ROS is not installed.'}\n")
 
     if not ros_installed:
         install_ros(architecture_type, os_type)
@@ -158,6 +165,10 @@ if __name__ == "__main__":
     project_language = questionary.select(
         "Would like to use ROS C++ or ROS Python?",
         choices=['C++ and Python (recommended)', 'C++ only', 'Python only']
+    ).ask()
+
+    git_init = questionary.confirm(
+        "Initialize a new git repository? (optional)", default=True
     ).ask()
 
     create_project_files(project_name, license_type, ros_distro)
