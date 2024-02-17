@@ -1,27 +1,22 @@
 import questionary
+import yaml
 from utils import *
 from ros_installer import *
-from ros_compatibility import *
 
-def install_ros(architecture_type, os_type):
+def install_ros(architecture_type, os_name, os_version):
     version = questionary.select(
         "Which version of ROS would you like to install?",
         choices=['ROS 1', 'ROS 2'],
     ).ask()
 
-    print(f"\nYour computer uses {architecture_type} architecture and {os_type} OS.\n")
+    file_path = 'ros_compatibility.yaml'
+    with open(file_path, 'r') as file:
+        compatibility = yaml.safe_load(file)
 
-    if version == 'ROS 1':
-
-        distribution = questionary.select(
-            "Which available ROS 1 distribution (based on your computer architecture and OS) would you like to install?",
-            choices=['ROS 1 Noetic', 'ROS 1 Melodic'],
-        ).ask()
-    else:
-        distribution = questionary.select(
-            "Which available ROS 2 distribution (based on your computer architecture and OS) would you like to install?",
-            choices=['ROS 2 Iron', 'ROS 2 Foxy'],
-        ).ask()
+    distribution = questionary.select(
+        "Which available ROS distribution would you like to install? This is based on your current os and cpu architecture.",
+        choices=compatibility[version][architecture_type][os_name][os_version]
+    ).ask()
 
     return version, distribution
 
@@ -36,20 +31,23 @@ def script():
                                     validate=lambda text: True if len(text) > 0 else "Please give your project a name!"
                                     ).ask()
 
-    architecture_type, os_type = get_system_info()
+    architecture_type, os_name, os_version = get_system_info()
     ros_installed, ros_distro = check_ros_installation()
 
-    print(
-        f"\nYour computer uses {architecture_type} architecture and {os_type} OS. {f'Current ROS version: {ros_distro}' if ros_installed else 'ROS is not installed.'}\n")
+    print(f"\nYour computer uses {architecture_type} architecture and {os_name} {os_version} OS. {f'Current ROS version: {ros_distro}' if ros_installed else 'ROS is not installed.'}\n")
+
 
     if not ros_installed:
-        install_ros(architecture_type, os_type)
+        # try:
+        install_ros(architecture_type, os_name, os_version)
+        # except KeyError:
+        #     print("There are currently no available ROS distribution available your computer architecture and OS.")
     else:
         new_ros = questionary.confirm(
             "What you like to install another ROS version instead?", default=False
         ).ask()
         if new_ros:
-            ros_version, ros_distribution = install_ros(architecture_type, os_type)
+            ros_version, ros_distribution = install_ros(architecture_type, os_name, os_version)
 
     license_type = questionary.select(
         "Which license would you like to choose?",

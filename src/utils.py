@@ -20,22 +20,22 @@ def run_command(command, shell=False):
         print(f"Command failed: {e}")
         return None
 
-def get_os_description():
-    basic_platform = platform.platform(aliased=True, terse=True)
-    if platform.system() == 'Darwin':
-        os_name = "MacOS"
-        os_version = platform.mac_ver()[0]
-    elif platform.system() == 'Linux':
-        os_name, os_version = basic_platform.split('-')[0], basic_platform.split('-')[1]
-    else:
-        os_name_version = basic_platform.split('-')[0]
-        os_name, os_version = os_name_version.rsplit(' ', 1)
-    return f"{os_name} {os_version}"
-
-
 def get_system_info():
-    return platform.machine(), get_os_description()
+    try:
+        basic_platform = platform.platform(aliased=True, terse=True)
+        if platform.system() == 'Darwin':
+            os_name = "MacOS"
+            os_version = platform.mac_ver()[0]
+        elif platform.system() == 'Linux':
+            os_name, os_version = basic_platform.split('-')[0], basic_platform.split('-')[1]
+        else:
+            os_name_version = basic_platform.split('-')[0]
+            os_name, os_version = os_name_version.rsplit(' ', 1)
 
+        return platform.machine(), os_name, str(os_version)
+
+    except:
+        print("Could not get system info.")
 
 def create_project_files(project_name, license_type, ros_distro, ros_version, ros_distribution, git_init):
     # setup project
