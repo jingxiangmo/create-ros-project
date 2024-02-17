@@ -38,7 +38,7 @@ def install_ros(architecture_type, os_type):
 
     print(f"\nYour computer uses {architecture_type} architecture and {os_type} OS.\n")
 
-    if ros_version == 'ROS 1':
+    if version == 'ROS 1':
 
         distribution = questionary.select(
             "Which available ROS 1 distribution (based on your computer architecture and OS) would you like to install?",
@@ -100,6 +100,6 @@ if __name__ == "__main__":
 
     if confirm_install:
         run_ros_install(ros_version, ros_distribution)
-        create_project_files(project_name, license_type, ros_distro)
+        create_project_files(project_name, license_type, ros_distro, git_init)
     else:
         print("You've quit installation :(")

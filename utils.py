@@ -4,7 +4,6 @@ import toml
 import os
 from ros_installer import *
 
-
 def run_command(command, shell=False):
     try:
         result = subprocess.run(
@@ -20,9 +19,6 @@ def run_command(command, shell=False):
     except subprocess.CalledProcessError as e:
         print(f"Command failed: {e}")
         return None
-
-
-
 
 def get_os_description():
     basic_platform = platform.platform(aliased=True, terse=True)
@@ -41,13 +37,14 @@ def get_system_info():
     return platform.machine(), get_os_description()
 
 
-def create_project_files(project_name, license_type, ros_distro, ros_version, ros_distribution):
+def create_project_files(project_name, license_type, ros_distro, ros_version, ros_distribution, git_init):
     # setup project
     os.makedirs(project_name, exist_ok=True)
 
     toml_file_path = os.path.join(project_name, 'rosproject.toml')
     readme_file_path = os.path.join(project_name, 'README.md')
     src_directory_path = os.path.join(project_name, 'src')
+    git_ignore_path = os.path.join(project_name, '.gitignore')
 
     data = {
         "project": {
@@ -69,4 +66,9 @@ def create_project_files(project_name, license_type, ros_distro, ros_version, ro
 
     os.makedirs(src_directory_path, exist_ok=True)
 
-    print(f"\n{project_name} setup is complete.\n")
+    if git_init:
+        run_command("git init")
+        with open(git_ignore_path, 'w') as file:
+            file.write(".idea")
+
+    print(f"\n{project_name} setup is complete. Welcome to ROS.\n")
