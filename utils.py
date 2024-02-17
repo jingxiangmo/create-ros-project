@@ -1,6 +1,8 @@
 import subprocess
 import platform
 import toml
+import os
+from ros_installer import *
 
 
 def run_command(command, shell=False):
@@ -20,12 +22,6 @@ def run_command(command, shell=False):
         return None
 
 
-def check_ros_installation():
-    try:
-        version_output = subprocess.check_output(['rosversion', '-d'], universal_newlines=True).strip()
-        return True, version_output
-    except (subprocess.CalledProcessError, FileNotFoundError):
-        return False, None
 
 
 def get_os_description():
@@ -45,16 +41,8 @@ def get_system_info():
     return platform.machine(), get_os_description()
 
 
-
-def create_project_files(project_name, license_type, ros_distro):
-    confirm_install = questionary.confirm(
-        "Ok to proceed?", default=True
-    ).ask()
-
-    # return
-    # if confirm_install:
-    #     run_ros_install()
-
+def create_project_files(project_name, license_type, ros_distro, ros_version, ros_distribution):
+    # setup project
     os.makedirs(project_name, exist_ok=True)
 
     toml_file_path = os.path.join(project_name, 'rosproject.toml')

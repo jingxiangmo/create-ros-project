@@ -15,6 +15,14 @@ Foxy Fitzroy: https://docs.ros.org/en/foxy/Installation/Alternatives/Ubuntu-Deve
 """
 
 
+def check_ros_installation():
+    try:
+        version_output = subprocess.check_output(['rosversion', '-d'], universal_newlines=True).strip()
+        return True, version_output
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        return False, None
+
+
 def run_ros_install(ros_version, ros_distribution):
     distributions = {
         "ROS 1 Noetic": "noetic",
