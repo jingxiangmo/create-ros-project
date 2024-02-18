@@ -8,7 +8,7 @@ setup(
     author='Jingxiang Mo',
     author_email='jingxiangmo@gmail.com',
     license='',
-    install_requires=['questionary', 'toml', 'pyyaml'],
+    install_requires=['questionary', 'toml', 'pyyaml', 'distro'],
     packages=find_packages(),
     entry_points=dict(
         console_scripts=['rq=src.main:script']

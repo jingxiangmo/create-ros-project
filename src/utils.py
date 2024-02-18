@@ -5,6 +5,7 @@ import os
 from typing import Tuple
 import questionary
 import yaml
+import distro
 
 def run_command(command : str):
     try:
@@ -24,20 +25,32 @@ def run_command(command : str):
 
 def get_system_info() -> Tuple[str, str, str]:
     try:
-        basic_platform = platform.platform(aliased=True, terse=True)
-        if platform.system() == 'Darwin':
-            os_name = "MacOS"
-            os_version = platform.mac_ver()[0]
-        elif platform.system() == 'Linux':
-            os_name, os_version = basic_platform.split('-')[0], basic_platform.split('-')[1]
+        os_system = platform.system()
+        if os_system == 'Linux':
+            distro_name = distro.name()
+            distro_version = distro.version()
+            if 'Ubuntu' in distro_name:
+                os_name = 'Ubuntu'
+                os_version = distro_version
+            else:
+                os_name = 'Linux'
+                os_version = 'Unknown'
         else:
-            os_name_version = basic_platform.split('-')[0]
-            os_name, os_version = os_name_version.rsplit(' ', 1)
+            os_name = os_system
+            os_version = 'Unknown'
 
-        return platform.machine(), os_name, str(os_version)
+        machine = platform.machine()
+        if machine == 'x86_64':
+            arch = 'amd64'
+        elif machine == 'aarch64':
+            arch = 'arm64'
+        else:
+            arch = machine
 
-    except:
-        print("Could not get system info.")
+        return arch, os_name, os_version
+    except Exception as e:
+        print(f"Could not get system info due to: {e}")
+        return None, None, None
 
 def install_ros_prompt(architecture_type: str, os_name: str, os_version: str) -> Tuple[str, str]:
     version = questionary.select(
