@@ -8,6 +8,26 @@ Getting started, setting up, and managing ROS dependencies is hard. CRP helps yo
 ```
 
 ## Roadmap
+#### 1. ROS installer and project creator 
+
+  A [create react app](https://create-react-app.dev) like developer experience for installing ROS and setting up a ROS project. 
+  
+  **Goals**
+  - ROS installer that supports major ROS 1 and 2 distributions on Ubuntu and MacOS.
+  - ROS system level dependency management.
+  - Project templates.
+
+#### 2. Gather feedback and installer & creator
+
+Understand the ROS community needs and what could be improved.
+
+#### 3. Package Manager [TBD]
+
+A [Poetry]([https://create-react-app.dev](https://python-poetry.org)) like developer experience for managing ROS packages.
+
+#### 4. Model Replacements [TBD]
+
+Make it easy to experiment and test out different perception, obstacle avoidance, and other machine learning models.
 
 
 ## Current Supports
