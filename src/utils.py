@@ -54,8 +54,17 @@ def get_system_info() -> Tuple[str, str, str]:
         print(f"Could not get system info due to: {e}")
         return None, None, None
 
+def check_ros_installation() -> Tuple[bool, str, str]:
+    try:
+        ros_version = os.getenv('ROS_VERSION')
+        ros_distribution = subprocess.check_output(['rosversion', '-d'], universal_newlines=True).strip()
+        return True, "ROS " + ros_version, ros_distribution
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        return False, None, None
+
+
 def install_ros_prompt(architecture_type: str, os_name: str, os_version: str) -> Tuple[str, str]:
-    version = questionary.select(
+    ros_version = questionary.select(
         "Which version of ROS would you like to install?",
         choices=['ROS 1', 'ROS 2'],
     ).ask()
@@ -64,20 +73,12 @@ def install_ros_prompt(architecture_type: str, os_name: str, os_version: str) ->
     with open(file_path, 'r') as file:
         compatibility = yaml.safe_load(file)
 
-    distribution = questionary.select(
+    ros_distribution = questionary.select(
         "Which available ROS distribution would you like to install? This is based on your current os and cpu architecture.",
-        choices=compatibility[version][architecture_type][os_name][os_version]
+        choices=compatibility[ros_version][architecture_type][os_name][os_version]
     ).ask()
 
-    return version, distribution
-
-def check_ros_installation() -> Tuple[bool, str, str]:
-    try:
-        ros_version = os.getenv('ROS_VERSION')
-        ros_distribution = subprocess.check_output(['rosversion', '-d'], universal_newlines=True).strip()
-        return True, "ROS " + ros_version, ros_distribution
-    except (subprocess.CalledProcessError, FileNotFoundError):
-        return False, None, None
+    return ros_version, ros_distribution
 
 def create_project_files(project_name : str, license_type : str, ros_version : str, ros_distribution : str, git_init : bool):
 

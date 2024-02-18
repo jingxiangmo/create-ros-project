@@ -1,29 +1,29 @@
 ROS 1:
   amd64:
     Ubuntu:
-      20.04:
+      "20.04":
         - Noetic
-      18.04:
+      "18.04":
         - Melodic
   arm64:
     Ubuntu:
-      20.04:
+      "20.04":
         - Noetic
-      18.04:
+      "18.04":
         - Melodic
 
 ROS 2:
   amd64:
     Ubuntu:
-      22.04:
+      "22.04":
         - Iron
-      20.04:
+      "20.04":
         - Foxy
   arm64:
     Ubuntu:
-      22.04:
+      "22.04":
         - Iron
-      20.04:
+      "20.04":
         - Foxy
     MacOS:
        "14.0":
