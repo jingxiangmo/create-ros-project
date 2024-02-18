@@ -2,13 +2,15 @@ import subprocess
 import platform
 import toml
 import os
-from ros_installer import *
+from typing import Tuple
+import questionary
+import yaml
 
-def run_command(command, shell=False):
+def run_command(command : str):
     try:
         result = subprocess.run(
             command,
-            shell=shell,
+            shell=False,
             check=True,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
@@ -20,7 +22,7 @@ def run_command(command, shell=False):
         print(f"Command failed: {e}")
         return None
 
-def get_system_info():
+def get_system_info() -> Tuple[str, str, str]:
     try:
         basic_platform = platform.platform(aliased=True, terse=True)
         if platform.system() == 'Darwin':
@@ -37,8 +39,32 @@ def get_system_info():
     except:
         print("Could not get system info.")
 
-def create_project_files(project_name, license_type, ros_distro, ros_version, ros_distribution, git_init):
-    # setup project
+def install_ros_prompt(architecture_type: str, os_name: str, os_version: str) -> Tuple[str, str]:
+    version = questionary.select(
+        "Which version of ROS would you like to install?",
+        choices=['ROS 1', 'ROS 2'],
+    ).ask()
+
+    file_path = 'ros_compatibility.yaml'
+    with open(file_path, 'r') as file:
+        compatibility = yaml.safe_load(file)
+
+    distribution = questionary.select(
+        "Which available ROS distribution would you like to install? This is based on your current os and cpu architecture.",
+        choices=compatibility[version][architecture_type][os_name][os_version]
+    ).ask()
+
+    return version, distribution
+
+def check_ros_installation() -> Tuple[bool, str]:
+    try:
+        version_output = subprocess.check_output(['rosversion', '-d'], universal_newlines=True).strip()
+        return True, version_output
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        return False, None
+
+def create_project_files(project_name : str, license_type : str, ros_version : str, ros_distribution : str, git_init : bool):
+
     os.makedirs(project_name, exist_ok=True)
 
     toml_file_path = os.path.join(project_name, 'rosproject.toml')
@@ -53,7 +79,7 @@ def create_project_files(project_name, license_type, ros_distro, ros_version, ro
             "readme": "README.md"
         },
         "dependencies": {
-            "ros": ros_distro,
+            "ros": ros_distribution,
         },
         "packages": {},
     }

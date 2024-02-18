@@ -1,9 +1,10 @@
-from utils import *
+from utils import run_command
 
 """
-NOTE: Installation scripts are provided by the official documentation. For safety reasons, the commands should NOT be  
-different from the official documentation. 
-If you see any mistakes or differences. Please open a Github Issue immediately.
+
+NOTE: Installation scripts are provided by the official documentation. For safety reasons, the commands should be the
+SAME as the official documentation. If you see any mistakes or differences. Please open a Github Issue immediately.
+
 
 ROS 1:
 Noetic Ninjemys: http://wiki.ros.org/noetic/Installation/Ubuntu
@@ -12,18 +13,10 @@ Foxy Fitzroy: https://docs.ros.org/en/foxy/Installation/Ubuntu-Install-Debians.h
 ROS 2:
 Iron Irwini:https://docs.ros.org/en/iron/Installation/Ubuntu-Install-Debians.html
 Foxy Fitzroy: https://docs.ros.org/en/foxy/Installation/Alternatives/Ubuntu-Development-Setup.html
+
 """
 
-
-def check_ros_installation():
-    try:
-        version_output = subprocess.check_output(['rosversion', '-d'], universal_newlines=True).strip()
-        return True, version_output
-    except (subprocess.CalledProcessError, FileNotFoundError):
-        return False, None
-
-
-def run_ros_install(ros_version, ros_distribution):
+def run_ros_install(ros_version : str, ros_distribution : str):
     distributions = {
         "ROS 1 Noetic": "noetic",
         "ROS 1 Melodic": "melodic",
