@@ -35,7 +35,7 @@ Make it easy to experiment and test out different perception, obstacle avoidance
 #### ROS 1
 - Neotic, Ubuntu 20.04 (arm64 and amd64)
 - Melodic, Ubuntu 18.04.6 (arm 64 and amd64)
-- 
+
 #### ROS 2
 - Iron, Ubuntu 22.04 (arm 64 and amd64)
 - Foxy, Ubuntu 20.04 (arm64 and amd64)
