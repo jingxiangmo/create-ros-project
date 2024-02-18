@@ -17,15 +17,15 @@ Getting started, setting up, and managing ROS dependencies is hard. CRP helps yo
   - ROS system level dependency management.
   - Project templates.
 
-#### 2. Gather feedback and installer & creator
+#### 2. Gather feedback and improve installer & creator
 
 Understand the ROS community needs and what could be improved.
 
-#### 3. Package Manager [TBD]
+#### 3. Packages manager [TBD]
 
 A [Poetry]([https://create-react-app.dev](https://python-poetry.org)) like developer experience for managing ROS packages.
 
-#### 4. Model Replacements [TBD]
+#### 4. Model replacements and environment [TBD]
 
 Make it easy to experiment and test out different perception, obstacle avoidance, and other machine learning models.
 
