@@ -23,7 +23,7 @@ Understand the ROS community needs and what could be improved.
 
 #### 3. Packages manager [TBD]
 
-A [Poetry]([https://create-react-app.dev](https://python-poetry.org)) like developer experience for managing ROS packages.
+A [Poetry](https://python-poetry.org) like developer experience for managing ROS packages.
 
 #### 4. Model replacements and environment [TBD]
 
