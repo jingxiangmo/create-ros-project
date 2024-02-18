@@ -6,11 +6,13 @@ from typing import Tuple
 import questionary
 import yaml
 import distro
+import shlex
 
-def run_command(command : str):
+def run_command(command: str):
     try:
+        args = shlex.split(command)
         result = subprocess.run(
-            command,
+            args,
             shell=False,
             check=True,
             stdout=subprocess.PIPE,

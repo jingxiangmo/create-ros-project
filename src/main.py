@@ -59,6 +59,5 @@ def script():
     else:
         print("You've quit installation :(")
 
-
 if __name__ == "__main__":
     script()
