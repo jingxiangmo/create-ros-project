@@ -14,10 +14,10 @@ def script():
                                     ).ask()
 
     architecture_type, os_name, os_version = get_system_info()
-    ros_installed, ros_distribution = check_ros_installation()
+    ros_installed, ros_version, ros_distribution = check_ros_installation()
     to_install_ros = False
 
-    print(f"\nYour computer uses {architecture_type} architecture and {os_name} {os_version} OS. {f'Current ROS version: {ros_distribution}' if ros_installed else 'ROS is not installed.'}\n")
+    print(f"\nYour computer uses {architecture_type} architecture and {os_name} {os_version} OS. {f'{ros_version} installed with {ros_distribution} distribution' if ros_installed else 'ROS is not installed.'}\n")
 
     if not ros_installed:
         try:

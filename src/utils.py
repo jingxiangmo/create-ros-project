@@ -56,12 +56,13 @@ def install_ros_prompt(architecture_type: str, os_name: str, os_version: str) ->
 
     return version, distribution
 
-def check_ros_installation() -> Tuple[bool, str]:
+def check_ros_installation() -> Tuple[bool, str, str]:
     try:
-        version_output = subprocess.check_output(['rosversion', '-d'], universal_newlines=True).strip()
-        return True, version_output
+        ros_version = os.getenv('ROS_VERSION')
+        ros_distribution = subprocess.check_output(['rosversion', '-d'], universal_newlines=True).strip()
+        return True, "ROS " + ros_version, ros_distribution
     except (subprocess.CalledProcessError, FileNotFoundError):
-        return False, None
+        return False, None, None
 
 def create_project_files(project_name : str, license_type : str, ros_version : str, ros_distribution : str, git_init : bool):
 
