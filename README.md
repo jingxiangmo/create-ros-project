@@ -41,7 +41,7 @@ Make it easy to experiment and test out different perception, obstacle avoidance
 
 
 ## Contribute
-Please open a new branch and PR or open up an issue.
+Please create PR or open up an issue. Thank you for your support!
 
 ## About
 Hi, I'm [JX](https://jingxiangmo.com)! I started thinking about creating this project in mid 2023 while doing a robotics research class. Setting up and managing dependencies in ROS 1 made me want to shoot myself!
