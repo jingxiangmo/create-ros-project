@@ -4,10 +4,10 @@ Getting started, setting up, and managing ROS dependencies is hard. CRP helps yo
 
 ## Installation
 ```
-git clone https://github.com/jingxiangmo/create-ros-project
-python3 create-ros-project/setup.py install
-python3 create-ros-project/src/main.py
+git clone https://github.com/jingxiangmo/create-ros-project && cd create-ros-project && python3 setup.py install && python3 src/main.py
 ```
+SOON WILL BE MADE INTO AN UBUNTU AND MAC PACKAGE!
+
 
 ## Roadmap
 #### 1. ROS installer and project creator 
