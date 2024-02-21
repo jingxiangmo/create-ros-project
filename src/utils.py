@@ -8,19 +8,20 @@ import yaml
 import distro
 import shlex
 
-def run_command(command: str):
+def run_command(command):
+    os.environ['LANG'] = 'en_US.UTF-8'
+    os.environ['LC_ALL'] = 'en_US.UTF-8'
+
     try:
-        args = shlex.split(command)
         result = subprocess.run(
-            args,
-            shell=False,
+            command,
+            shell=True,
             check=True,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
-            text=True
+            text=True,
         )
         return result.stdout
-
     except subprocess.CalledProcessError as e:
         print(f"Command failed: {e}")
         return None
@@ -50,6 +51,7 @@ def get_system_info() -> Tuple[str, str, str]:
             arch = machine
 
         return arch, os_name, os_version
+
     except Exception as e:
         print(f"Could not get system info due to: {e}")
         return None, None, None
@@ -75,7 +77,7 @@ def install_ros_prompt(architecture_type: str, os_name: str, os_version: str) ->
 
     ros_distribution = questionary.select(
         "Which available ROS distribution would you like to install? This is based on your current os and cpu architecture.",
-        choices=compatibility[ros_version][architecture_type][os_name][os_version]
+        choices= compatibility[ros_version][architecture_type][os_name][os_version]
     ).ask()
 
     return ros_version, ros_distribution

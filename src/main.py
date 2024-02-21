@@ -43,6 +43,11 @@ def script():
         choices=['C++ and Python (recommended)', 'C++ only', 'Python only']
     ).ask()
 
+    project_template = questionary.select(
+        "Would like to start with a project template?",
+        choices=['Basic Workspace (recommended)', 'Empty Workspace']
+    )
+
     git_init = questionary.confirm(
         "Initialize a new git repository? (optional)", default=True
     ).ask()
