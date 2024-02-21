@@ -1,4 +1,4 @@
-# Create ROS Project (Under Development 🔨)
+# Create ROS Project (Under Heavy Development 🔨)
 
 Getting started, setting up, and managing ROS dependencies is hard. CRP helps you install, setup, and manage your robotics projects with one command.
 
