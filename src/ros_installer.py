@@ -24,6 +24,14 @@ distributions = {
 }
 
 def run_ros_install(ros_version : str, ros_distribution : str):
+
+    print("""
+    ================================
+    === ROS INSTALLATION STARTED ===
+    ================================
+    """)
+
+
     try:
 
         ros_distribution = distributions[ros_distribution]
@@ -58,10 +66,9 @@ def run_ros_install(ros_version : str, ros_distribution : str):
 
 
         if ros_version == "ROS 2":
-            print("Installing ROS2...")
-
             # set locale
             print("Setting locale...")
+
             run_command("locale")  # check for UTF-8
 
             run_command("sudo apt update && sudo apt install locales")
@@ -98,9 +105,8 @@ def run_ros_install(ros_version : str, ros_distribution : str):
             run_command("sudo apt install ros-dev-tools")
 
             # environment setup
-            print("Setting up environment...")
-            run_command("source /opt/ros/" + ros_distribution + "/setup.bash")
+            #print("Setting up environment...")
 
-            print("ROS installation complete.")
+            print("ROS installation complete. Please run the following command in your terminal: " + "source /opt/ros/" + ros_distribution + "/setup.bash")
     except:
         print("Installation error. ROS was not able to be installed.")

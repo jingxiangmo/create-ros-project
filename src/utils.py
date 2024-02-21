@@ -13,18 +13,27 @@ def run_command(command):
     os.environ['LC_ALL'] = 'en_US.UTF-8'
 
     try:
-        result = subprocess.run(
+        # Start the subprocess and specify stdout and stderr to be piped
+        process = subprocess.Popen(
             command,
             shell=True,
-            check=True,
             stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
             text=True,
         )
-        return result.stdout
+
+        # Read the output line by line as it becomes available
+        while True:
+            output = process.stdout.readline()
+            if output == '' and process.poll() is not None:
+                break
+            if output:
+                print(output.strip())
+        process.poll()
+
     except subprocess.CalledProcessError as e:
         print(f"Command failed: {e}")
-        return None
+
 
 def get_system_info() -> Tuple[str, str, str]:
     try:
