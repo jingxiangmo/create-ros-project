@@ -8,31 +8,28 @@ import yaml
 import distro
 import shlex
 
-def run_command(command):
+
+def run_command(command, auto_confirm=True):
     os.environ['LANG'] = 'en_US.UTF-8'
     os.environ['LC_ALL'] = 'en_US.UTF-8'
 
+    full_command = command
+    if auto_confirm:
+        # Prepends 'yes' command to automatically respond with "y" to any prompts
+        full_command = f"yes | {command}"
+
     try:
-        # Start the subprocess and specify stdout and stderr to be piped
-        process = subprocess.Popen(
-            command,
+        subprocess.run(
+            full_command,
             shell=True,
+            check=True,
             stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
+            stderr=subprocess.PIPE,
             text=True,
         )
-
-        # Read the output line by line as it becomes available
-        while True:
-            output = process.stdout.readline()
-            if output == '' and process.poll() is not None:
-                break
-            if output:
-                print(output.strip())
-        process.poll()
-
+        print(f"Command executed successfully: {command}")
     except subprocess.CalledProcessError as e:
-        print(f"Command failed: {e}")
+        print(f"Command failed: {e}\nOutput: {e.stderr}")
 
 
 def get_system_info() -> Tuple[str, str, str]:
@@ -77,7 +74,7 @@ def check_ros_installation() -> Tuple[bool, str, str]:
 def install_ros_prompt(architecture_type: str, os_name: str, os_version: str) -> Tuple[str, str]:
     ros_version = questionary.select(
         "Which version of ROS would you like to install?",
-        choices=['ROS 1', 'ROS 2'],
+        choices=['ROS 2', 'ROS 1'],
     ).ask()
 
     file_path = 'ros_compatibility.yaml'
