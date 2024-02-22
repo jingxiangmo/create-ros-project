@@ -4,7 +4,7 @@ Getting started, setting up, and managing ROS dependencies is hard. CRP helps yo
 
 ## Installation
 ```
-git clone https://github.com/jingxiangmo/create-ros-project && cd create-ros-project && python3 setup.py install && python3 src/main.py
+git clone https://github.com/jingxiangmo/create-ros-project && cd create-ros-project && sudo python3 setup.py install && python3 src/main.py
 ```
 SOON WILL BE MADE INTO AN UBUNTU AND MAC PACKAGE!
 
@@ -35,7 +35,9 @@ Make it easy to experiment and test out different perception, obstacle avoidance
 ## Current Supports
 (MORE SUPPORT COMING SOON! CRP currently support the most used ROS distribution and platform. Since this is a relatively new project, the current supports are for my current projects with my research teams and competition teams. If you have a specific version you would like to request, please let me know.)
 #### ROS 1
+
 ~~- Neotic, Ubuntu 20.04 (arm64 and amd64)~~
+
 ~~- Melodic, Ubuntu 18.04.6 (arm 64 and amd64)~~
 
 #### ROS 2
