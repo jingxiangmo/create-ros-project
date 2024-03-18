@@ -1,4 +1,4 @@
-# Create ROS Project (Under Heavy Development 🔨)
+# Create ROS Project (WIP 🔨)
 
 Getting started, setting up, and managing ROS dependencies is hard. CRP helps you install, setup, and manage your robotics projects with one command.
 
@@ -6,8 +6,6 @@ Getting started, setting up, and managing ROS dependencies is hard. CRP helps yo
 ```
 git clone https://github.com/jingxiangmo/create-ros-project && cd create-ros-project && sudo python3 setup.py install && python3 src/main.py
 ```
-SOON WILL BE MADE INTO AN UBUNTU AND MAC PACKAGE!
-
 
 ## Roadmap
 #### 1. ROS installer and project creator 
