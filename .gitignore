@@ -3,3 +3,5 @@
 dist
 create_ros_project.egg-info
 build
+__pycache__/
+.venv/
