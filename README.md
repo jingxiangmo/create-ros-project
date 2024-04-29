@@ -8,10 +8,10 @@ git clone https://github.com/jingxiangmo/create-ros-project && cd create-ros-pro
 ```
 
 ## Roadmap
-#### 1. ROS installer and project creator 
+#### 1. ROS installer and project creator
 
-  A [create react app](https://create-react-app.dev) like developer experience for installing ROS and setting up a ROS project. 
-  
+  A [create react app](https://create-react-app.dev) like developer experience for installing ROS and setting up a ROS project.
+
   **Goals**
   - ROS installer that supports major ROS 1 and 2 distributions on Ubuntu and MacOS.
   - ROS system level dependency management.
