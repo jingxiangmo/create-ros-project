@@ -2,6 +2,38 @@
 
 Getting started, setting up, and managing ROS dependencies is hard. CRP helps you install, setup, and manage your robotics projects with one command.
 
+## Why Golang?
+
+We want to have a trivial install process and a single command to run to get a
+working ROS environment. Golang makes this easy, as the go compiler [outputs a
+single, standalone executable with no system
+dependencies](https://go.dev/solutions/clis#key-benefits). This includes system
+libraries, so we don't need to worry about where libc is on a given linux
+machine for example (different distributions put it in different places). Go
+can also be compiled for many operating systems and architectures, including
+everything ROS runs on. A single standalone executable means that all any
+automated install has to do is grab the executable from where releases are
+hosted for the appropriate platform, and put it somewhere reasonable on the
+system (in PATH). That's it. In fact its so easy that anyone can do it
+themselves just downloading the executable and dropping it in their PATH.
+
+Additionally, go has a rich ecosystem of libraries and utilities just for
+writing command line applications like ours. e.g.
+[charm](https://charm.sh/libs/). Many important CLI applications leverage go
+and its ecosystem such as the github CLI and lazygit.
+
+Finally, go is designed to be extremely simplex (opposite of complex). We can
+build what we need to with satisfactory technical properties and move on with our
+lives. Alternatives such as rust and c++ share potentially similar desirable
+technical properties and CLI ecosystems, but come with enormous complexity.
+
+### Why not python?
+
+Python introduces at the very least a dependency on python itself (and probably
+a limited range of python versions because they break their standard library
+disturbingly often) and also any libraries we use. More dependencies complicates
+installation and development.
+
 ## Installation
 ```
 git clone https://github.com/jingxiangmo/create-ros-project && cd create-ros-project && sudo python3 setup.py install && python3 src/main.py
