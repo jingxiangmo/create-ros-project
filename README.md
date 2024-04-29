@@ -39,6 +39,21 @@ installation and development.
 git clone https://github.com/jingxiangmo/create-ros-project && cd create-ros-project && sudo python3 setup.py install && python3 src/main.py
 ```
 
+## Features
+
+Config file and flags. If people want to specify defaults they need from the CLI
+up front, then they can pass a flag or set something in the config file.
+
+E.g. if they do the same thing with create-ros-project every time why not just
+write it down somewhere like a config file. Flags can be used to override things
+e.g. if they want to keep stuff in the config file except one tiny change for one
+run only, then pass a flag for that change.
+
+To this end, the go version is a
+[cobra](https://github.com/spf13/cobra?tab=readme-ov-file) and
+[viper](https://github.com/spf13/viper) project. Cobra is a framework for making
+CLI apps and parsing out flags and arguments, and viper is a config file parser.
+
 ## Roadmap
 #### 1. ROS installer and project creator
 
