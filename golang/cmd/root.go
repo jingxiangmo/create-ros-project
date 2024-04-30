@@ -10,19 +10,19 @@ package cmd
 import (
     "bytes"
     "fmt"
-    "os"
-    "os/exec"
     "io"
     "log"
-    "runtime"
-    "path/filepath"
     "net/http"
+    "os"
+    "os/exec"
+    "path/filepath"
+    "runtime"
 
+    "github.com/charmbracelet/huh"
+    "github.com/pelletier/go-toml/v2" // already used by viper
+    "github.com/shirou/gopsutil/v3/host"
     "github.com/spf13/cobra"
     "github.com/spf13/viper"
-    "github.com/charmbracelet/huh"
-    "github.com/shirou/gopsutil/v3/host"
-    "github.com/pelletier/go-toml/v2" // already used by viper
 )
 
 var (
