@@ -235,7 +235,7 @@ to quickly create a Cobra application.`,
             gitignorePath := filepath.Join(projectName, ".gitignore")
 
             // makes the project folder as well since its a parent of src
-            if err := os.MkdirAll(srcPath, 0755);
+            if err := os.MkdirAll(srcPath, os.ModeDir);
             err != nil {
                 log.Fatal(err)
             }
