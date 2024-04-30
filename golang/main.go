@@ -1,14 +1,9 @@
-/*
-Copyright © 2024 NAME HERE <EMAIL ADDRESS>
-
-*/
 package main
 
 import (
     "bytes"
     "fmt"
     "io"
-    "log"
     "net/http"
     "os"
     "os/exec"
@@ -20,8 +15,10 @@ import (
     "github.com/shirou/gopsutil/v3/host"
 )
 
-func main() {
+// NOTE(beau): DON'T CHANGE THIS AT RUNTIME
+var abortError = fmt.Errorf("user aborted")
 
+func run() error {
     fmt.Println(
 `  ;     /        ,--.
   ["]   ["]  ,<  |__**|
@@ -47,8 +44,11 @@ func main() {
     )
 
     {
-        // TODO: handle error
-        hostinfo, _ := host.Info()
+        hostinfo, err := host.Info()
+        // REVIEW: better error handling
+        if err != nil {
+            return err
+        }
         OSdistro, OSversion = hostinfo.Platform, hostinfo.PlatformVersion
         fmt.Printf(
             "OS: %s\nDistro: %s\nVersion: %s\nArch: %s\n",
@@ -73,7 +73,7 @@ func main() {
         Value(&projectName).
         Run();
     err != nil {
-        log.Fatal(err)
+        return err
     }
 
 
@@ -96,7 +96,7 @@ func main() {
                 Value(&shouldInstallROS).
                 Run();
             err != nil {
-                log.Fatal(err)
+                return err
             }
         } else {
             shouldInstallROS = true
@@ -148,7 +148,7 @@ func main() {
             Value(&rosVersion).
             Run();
         err != nil {
-            log.Fatal(err)
+            return err
         }
 
         options, exists := rosCompatibility [rosVersion][runtime.GOARCH][OSdistro][OSversion]
@@ -160,10 +160,10 @@ func main() {
                 Value(&rosDistro).
                 Run();
              err != nil {
-                log.Fatal(err)
+                return err
             }
         } else {
-            log.Fatal("No compatible ROS distributions available")
+            return fmt.Errorf("No compatible ROS distributions available")
         }
 
     }
@@ -205,12 +205,12 @@ func main() {
 
     if err := form.Run();
     err != nil {
-        log.Fatal(err)
+        return err
     }
 
 
     if !confirm {
-        log.Fatal("user aborted")
+        return abortError
     }
 
     srcPath := filepath.Join(projectName, "src")
@@ -219,11 +219,14 @@ func main() {
     // REVIEW(beau): permissions
     if err := os.MkdirAll(srcPath, 0755);
     err != nil {
-        log.Fatal(err)
+        return err
     }
 
     // NOTE(beau): should be safe because we just created the directory
     os.Chdir(projectName)
+
+    // REVIEW: its currently assumed that writing to files is safe because we
+    // just created the directory
 
     if shouldInitGit {
         // TODO: handle error
@@ -235,18 +238,20 @@ func main() {
             ignoreAPI_URL += "2"
         }
 
-        // TODO: handle errors
-        resp, _ := http.Get(ignoreAPI_URL)
-        body, _ := io.ReadAll(resp.Body)
+        {
+            resp, err := http.Get(ignoreAPI_URL)
+            if err != nil {
+                return err
+            }
+            // REVIEW(beau): is it safe to ignore this error since the request worked?
+            body, _ := io.ReadAll(resp.Body)
 
-        // REVIEW(beau): file permissions. smh
-        os.WriteFile(".gitignore", body, 0644)
+            os.WriteFile(".gitignore", body, 0644)
+        }
     }
 
-    os.WriteFile("README.md", []byte(fmt.Sprintf("# %s\n\n", projectName)), 0644)
-
     tomlbuf := bytes.Buffer{}
-    toml.NewEncoder(&tomlbuf).Encode(map[string]map[string]string {
+    if err := toml.NewEncoder(&tomlbuf).Encode(map[string]map[string]string {
         "project": {
             "name": projectName,
             "license": license,
@@ -256,7 +261,21 @@ func main() {
             "ros": rosDistro,
         },
         "packages": {},
-    })
+    }); err != nil {
+        return err
+    }
 
     os.WriteFile("rosproject.toml", tomlbuf.Bytes(), 0644)
+    os.WriteFile("README.md", []byte(fmt.Sprintf("# %s\n\n", projectName)), 0644);
+
+
+    return nil
+}
+
+func main() {
+    // TODO: something smarter
+    if err := run(); err != nil {
+        fmt.Println(err)
+        os.Exit(1)
+    }
 }
