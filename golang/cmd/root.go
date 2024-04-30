@@ -98,10 +98,9 @@ to quickly create a Cobra application.`,
         }
 
 
-        // NOTE(beau): from -
-        // https://github.com/ros-infrastructure/rospkg/blob/c8185799792c86b1c9a8df2c1a24da85c2b49b9f/src/rospkg/rosversion.py#L39-L45
-        // -
-        // https://github.com/ros-infrastructure/rospkg/blob/c8185799792c86b1c9a8df2c1a24da85c2b49b9f/src/rospkg/rosversion.py#L118-L122
+        // - https://github.com/ros-infrastructure/rospkg/blob/c8185799792c86b1c9a8df2c1a24da85c2b49b9f/src/rospkg/rosversion.py#L118-L122
+        // - https://github.com/ros-infrastructure/rospkg/blob/c8185799792c86b1c9a8df2c1a24da85c2b49b9f/src/rospkg/rosversion.py#L39-L45
+        // NOTE(beau): from
         // very old ROS distributions don't set the ROS_DISTRO environment
         // variable rosversion provides a way to find this that we can copy. We
         // can't call rosversion directly because the expectation is zero
