@@ -254,13 +254,26 @@ to quickly create a Cobra application.`,
             // NOTE(beau): should be safe because we just created the directory
             os.Chdir(projectName)
 
+            var (
+                rosDistro string
+                rosVersion string
+            )
+
+            if shouldInstallROS {
+                rosDistro = newROSDistro
+                rosVersion = newROSVersion
+            } else {
+                rosDistro = existingROSDistro
+                rosVersion = existingROSVersion
+            }
+
             if shouldInitGit {
                 // TODO: handle error
                 exec.Command("git", "init").Run()
 
                 // get a good gitignore template
                 ignoreAPI_URL := "https://www.toptal.com/developers/gitignore/api/ros"
-                if newROSVersion == "ROS 2" {
+                if rosVersion == "ROS 2" {
                     ignoreAPI_URL += "2"
                 }
 
@@ -273,14 +286,6 @@ to quickly create a Cobra application.`,
             }
 
             os.WriteFile("README.md", []byte(fmt.Sprintf("# %s\n\n", projectName)), 0644)
-
-
-            var rosDistro string
-            if shouldInstallROS {
-                rosDistro = newROSDistro
-            } else {
-                rosDistro = existingROSDistro
-            }
 
             tomlbuf := bytes.Buffer{}
             toml.NewEncoder(&tomlbuf).Encode(map[string]map[string]string {
