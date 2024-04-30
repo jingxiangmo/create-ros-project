@@ -229,54 +229,56 @@ to quickly create a Cobra application.`,
         }
 
 
-        if confirm {
-            srcPath := filepath.Join(projectName, "src")
-
-            // makes the project folder as well since its a parent of src
-            // REVIEW(beau): permissions
-            if err := os.MkdirAll(srcPath, 0755);
-            err != nil {
-                log.Fatal(err)
-            }
-
-            // NOTE(beau): should be safe because we just created the directory
-            os.Chdir(projectName)
-
-            if shouldInitGit {
-                // TODO: handle error
-                exec.Command("git", "init").Run()
-
-                // get a good gitignore template
-                ignoreAPI_URL := "https://www.toptal.com/developers/gitignore/api/ros"
-                if rosVersion == "ROS 2" {
-                    ignoreAPI_URL += "2"
-                }
-
-                // TODO: handle errors
-                resp, _ := http.Get(ignoreAPI_URL)
-                body, _ := io.ReadAll(resp.Body)
-
-                // REVIEW(beau): file permissions. smh
-                os.WriteFile(".gitignore", body, 0644)
-            }
-
-            os.WriteFile("README.md", []byte(fmt.Sprintf("# %s\n\n", projectName)), 0644)
-
-            tomlbuf := bytes.Buffer{}
-            toml.NewEncoder(&tomlbuf).Encode(map[string]map[string]string {
-                "project": {
-                    "name": projectName,
-                    "license": license,
-                    "readme": "README.md",
-                },
-                "dependencies": {
-                    "ros": rosDistro,
-                },
-                "packages": {},
-            })
-
-            os.WriteFile("rosproject.toml", tomlbuf.Bytes(), 0644)
+        if !confirm {
+            log.Fatal("user aborted")
         }
+
+        srcPath := filepath.Join(projectName, "src")
+
+        // makes the project folder as well since its a parent of src
+        // REVIEW(beau): permissions
+        if err := os.MkdirAll(srcPath, 0755);
+        err != nil {
+            log.Fatal(err)
+        }
+
+        // NOTE(beau): should be safe because we just created the directory
+        os.Chdir(projectName)
+
+        if shouldInitGit {
+            // TODO: handle error
+            exec.Command("git", "init").Run()
+
+            // get a good gitignore template
+            ignoreAPI_URL := "https://www.toptal.com/developers/gitignore/api/ros"
+            if rosVersion == "ROS 2" {
+                ignoreAPI_URL += "2"
+            }
+
+            // TODO: handle errors
+            resp, _ := http.Get(ignoreAPI_URL)
+            body, _ := io.ReadAll(resp.Body)
+
+            // REVIEW(beau): file permissions. smh
+            os.WriteFile(".gitignore", body, 0644)
+        }
+
+        os.WriteFile("README.md", []byte(fmt.Sprintf("# %s\n\n", projectName)), 0644)
+
+        tomlbuf := bytes.Buffer{}
+        toml.NewEncoder(&tomlbuf).Encode(map[string]map[string]string {
+            "project": {
+                "name": projectName,
+                "license": license,
+                "readme": "README.md",
+            },
+            "dependencies": {
+                "ros": rosDistro,
+            },
+            "packages": {},
+        })
+
+        os.WriteFile("rosproject.toml", tomlbuf.Bytes(), 0644)
     },
 }
 
