@@ -56,6 +56,8 @@ to quickly create a Cobra application.`,
             rosDistro          string
 
             projectName        string
+
+            // REVIEW: these are viable candidates for a config file or flags
             license            string
             cppAndOrPython     string
             template           string
