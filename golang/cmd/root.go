@@ -149,8 +149,8 @@ to quickly create a Cobra application.`,
                     "arm64": {
                         "darwin": {
                             "14.4.1": {
-                                "sldfkj",
-                                "kdsf",
+                                "Test 1",
+                                "Test 2",
                             },
                         },
                         "ubuntu": {
