@@ -52,11 +52,8 @@ to quickly create a Cobra application.`,
             OSdistro           string
             OSversion          string
 
-            rosInstalled       bool
-            existingROSVersion string
-            existingROSDistro  string
-            newROSVersion      string
-            newROSDistro       string
+            rosVersion         string
+            rosDistro          string
 
             projectName        string
             license            string
@@ -81,28 +78,6 @@ to quickly create a Cobra application.`,
             )
         }
 
-        // NOTE(beau): from -
-        // https://github.com/ros-infrastructure/rospkg/blob/c8185799792c86b1c9a8df2c1a24da85c2b49b9f/src/rospkg/rosversion.py#L39-L45
-        // -
-        // https://github.com/ros-infrastructure/rospkg/blob/c8185799792c86b1c9a8df2c1a24da85c2b49b9f/src/rospkg/rosversion.py#L118-L122
-        // very old ROS distributions don't set the ROS_DISTRO environment
-        // variable rosversion provides a way to find this that we can copy. We
-        // can't call rosversion directly because the expectation is zero
-        // dependencies. Perhaps we could optionally use it if it's available.
-        // TODO: find older ROS versions using the logic from rosversion linked
-        // above
-        existingROSVersion, existingROSDistro = os.Getenv("ROS_VERSION"), os.Getenv("ROS_DISTRO")
-        rosInstalled = len(existingROSVersion) > 0 && len(existingROSDistro) > 0
-        {
-            var rosMessage string
-            if rosInstalled {
-                rosMessage = fmt.Sprintf("Existing ROS Installation:\nVersion: %s\nROS Distro: %s", existingROSVersion, existingROSDistro)
-            } else {
-                rosMessage = "ROS is not installed"
-            }
-
-            fmt.Println(rosMessage)
-        }
 
         if err := huh.NewInput().
             Title("What is your project named?").
@@ -122,17 +97,31 @@ to quickly create a Cobra application.`,
         }
 
 
-        if rosInstalled {
-            title := fmt.Sprintf("Looks like you have ROS %s %s installed, would you like to install another ROS version instead?", existingROSVersion, existingROSDistro)
-            if err := huh.NewConfirm().
-                Title(title).
-                Value(&shouldInstallROS).
-                Run();
-            err != nil {
-                log.Fatal(err)
+        // NOTE(beau): from -
+        // https://github.com/ros-infrastructure/rospkg/blob/c8185799792c86b1c9a8df2c1a24da85c2b49b9f/src/rospkg/rosversion.py#L39-L45
+        // -
+        // https://github.com/ros-infrastructure/rospkg/blob/c8185799792c86b1c9a8df2c1a24da85c2b49b9f/src/rospkg/rosversion.py#L118-L122
+        // very old ROS distributions don't set the ROS_DISTRO environment
+        // variable rosversion provides a way to find this that we can copy. We
+        // can't call rosversion directly because the expectation is zero
+        // dependencies. Perhaps we could optionally use it if it's available.
+        // TODO: find older ROS versions using the logic from rosversion linked
+        // above
+        rosVersion, rosDistro = os.Getenv("ROS_VERSION"), os.Getenv("ROS_DISTRO")
+        {
+            rosInstalled := len(rosVersion) > 0 && len(rosDistro) > 0
+            if rosInstalled {
+                title := fmt.Sprintf("Looks like you have ROS %s %s installed, would you like to install another ROS version instead?", rosVersion, rosDistro)
+                if err := huh.NewConfirm().
+                    Title(title).
+                    Value(&shouldInstallROS).
+                    Run();
+                err != nil {
+                    log.Fatal(err)
+                }
+            } else {
+                shouldInstallROS = true
             }
-        } else {
-            shouldInstallROS = true
         }
 
         if shouldInstallROS {
@@ -177,19 +166,19 @@ to quickly create a Cobra application.`,
             if err := huh.NewSelect[string]().
                 Title("Which version of ROS would you like to install?").
                 Options(huh.NewOptions("ROS 2", "ROS 1")...).
-                Value(&newROSVersion).
+                Value(&rosVersion).
                 Run();
             err != nil {
                 log.Fatal(err)
             }
 
-            options, exists := rosCompatibility [newROSVersion][runtime.GOARCH][OSdistro][OSversion]
+            options, exists := rosCompatibility [rosVersion][runtime.GOARCH][OSdistro][OSversion]
 
             if exists {
                 if err := huh.NewSelect[string]().
                     Title("Which available ROS distribution would you like to install? This is based on your current os and cpu architecture.").
                     Options(huh.NewOptions(options...)...).
-                    Value(&newROSDistro).
+                    Value(&rosDistro).
                     Run();
                  err != nil {
                     log.Fatal(err)
@@ -253,19 +242,6 @@ to quickly create a Cobra application.`,
 
             // NOTE(beau): should be safe because we just created the directory
             os.Chdir(projectName)
-
-            var (
-                rosDistro string
-                rosVersion string
-            )
-
-            if shouldInstallROS {
-                rosDistro = newROSDistro
-                rosVersion = newROSVersion
-            } else {
-                rosDistro = existingROSDistro
-                rosVersion = existingROSVersion
-            }
 
             if shouldInitGit {
                 // TODO: handle error
