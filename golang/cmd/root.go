@@ -43,11 +43,11 @@ to quickly create a Cobra application.`,
 	// has an action associated with it:
 	Run: func(cmd *cobra.Command, args []string) {
 
-        fmt.Println(`        ;     /        ,--.
-    ["]   ["]  ,<  |__**|
-   /[_]\  [~]\/    |//  |
-    ] [   OOO      /o|__|   ROS
- `)
+        fmt.Println(
+`  ;     /        ,--.
+  ["]   ["]  ,<  |__**|
+ /[_]\  [~]\/    |//  |
+  ] [   OOO      /o|__|   ROS`)
         var (
             OSdistro           string
             OSversion          string
