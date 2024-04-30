@@ -2,20 +2,27 @@
 Copyright © 2024 NAME HERE <EMAIL ADDRESS>
 
 */
+
+// TODO(beau): on interrupt exit cleanly with 0
+
 package cmd
 
 import (
+    "bytes"
     "fmt"
     "os"
+    "os/exec"
+    "io"
     "log"
     "runtime"
     "path/filepath"
+    "net/http"
 
     "github.com/spf13/cobra"
     "github.com/spf13/viper"
     "github.com/charmbracelet/huh"
     "github.com/shirou/gopsutil/v3/host"
-    // "github.com/BurntSushi/toml"
+    "github.com/pelletier/go-toml/v2" // already used by viper
 )
 
 var (
@@ -62,6 +69,7 @@ to quickly create a Cobra application.`,
         )
 
         {
+            // TODO: handle error
             hostinfo, _ := host.Info()
             OSdistro, OSversion = hostinfo.Platform, hostinfo.PlatformVersion
             fmt.Printf(
@@ -73,13 +81,16 @@ to quickly create a Cobra application.`,
             )
         }
 
-        // NOTE(beau): from
-        // - https://github.com/ros-infrastructure/rospkg/blob/c8185799792c86b1c9a8df2c1a24da85c2b49b9f/src/rospkg/rosversion.py#L39-L45
-        // - https://github.com/ros-infrastructure/rospkg/blob/c8185799792c86b1c9a8df2c1a24da85c2b49b9f/src/rospkg/rosversion.py#L118-L122
+        // NOTE(beau): from -
+        // https://github.com/ros-infrastructure/rospkg/blob/c8185799792c86b1c9a8df2c1a24da85c2b49b9f/src/rospkg/rosversion.py#L39-L45
+        // -
+        // https://github.com/ros-infrastructure/rospkg/blob/c8185799792c86b1c9a8df2c1a24da85c2b49b9f/src/rospkg/rosversion.py#L118-L122
         // very old ROS distributions don't set the ROS_DISTRO environment
         // variable rosversion provides a way to find this that we can copy. We
         // can't call rosversion directly because the expectation is zero
         // dependencies. Perhaps we could optionally use it if it's available.
+        // TODO: find older ROS versions using the logic from rosversion linked
+        // above
         existingROSVersion, existingROSDistro = os.Getenv("ROS_VERSION"), os.Getenv("ROS_DISTRO")
         rosInstalled = len(existingROSVersion) > 0 && len(existingROSDistro) > 0
         {
@@ -96,6 +107,7 @@ to quickly create a Cobra application.`,
         if err := huh.NewInput().
             Title("What is your project named?").
             Prompt("? ").
+            // TODO: enforce a valid directory name
             Validate(func(projName string) (result error) {
                 // TODO: validate that its an actual directory
                 if len(projName) < 1 {
@@ -161,6 +173,7 @@ to quickly create a Cobra application.`,
                 },
             }
 
+            // TODO: find this out regardless of if we're installing
             if err := huh.NewSelect[string]().
                 Title("Which version of ROS would you like to install?").
                 Options(huh.NewOptions("ROS 2", "ROS 1")...).
@@ -229,23 +242,60 @@ to quickly create a Cobra application.`,
 
 
         if confirm {
-            srcPath       := filepath.Join(projectName, "src")
-            tomlPath      := filepath.Join(projectName, "rosproject.toml")
-            readmePath    := filepath.Join(projectName, "README.md")
-            gitignorePath := filepath.Join(projectName, ".gitignore")
+            srcPath := filepath.Join(projectName, "src")
 
             // makes the project folder as well since its a parent of src
-            if err := os.MkdirAll(srcPath, os.ModeDir);
+            // REVIEW(beau): permissions
+            if err := os.MkdirAll(srcPath, 0755);
             err != nil {
                 log.Fatal(err)
             }
 
-            fmt.Println(
-                srcPath,
-                tomlPath,
-                readmePath,
-                gitignorePath,
-            )
+            // NOTE(beau): should be safe because we just created the directory
+            os.Chdir(projectName)
+
+            if shouldInitGit {
+                // TODO: handle error
+                exec.Command("git", "init").Run()
+
+                // get a good gitignore template
+                ignoreAPI_URL := "https://www.toptal.com/developers/gitignore/api/ros"
+                if newROSVersion == "ROS 2" {
+                    ignoreAPI_URL += "2"
+                }
+
+                // TODO: handle errors
+                resp, _ := http.Get(ignoreAPI_URL)
+                body, _ := io.ReadAll(resp.Body)
+
+                // REVIEW(beau): file permissions. smh
+                os.WriteFile(".gitignore", body, 0644)
+            }
+
+            os.WriteFile("README.md", []byte(fmt.Sprintf("# %s\n\n", projectName)), 0644)
+
+
+            var rosDistro string
+            if shouldInstallROS {
+                rosDistro = newROSDistro
+            } else {
+                rosDistro = existingROSDistro
+            }
+
+            tomlbuf := bytes.Buffer{}
+            toml.NewEncoder(&tomlbuf).Encode(map[string]map[string]string {
+                "project": {
+                    "name": projectName,
+                    "license": license,
+                    "readme": "README.md",
+                },
+                "dependencies": {
+                    "ros": rosDistro,
+                },
+                "packages": {},
+            })
+
+            os.WriteFile("rosproject.toml", tomlbuf.Bytes(), 0644)
         }
     },
 }
