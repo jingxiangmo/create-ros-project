@@ -84,7 +84,6 @@ to quickly create a Cobra application.`,
             Prompt("? ").
             // TODO: enforce a valid directory name
             Validate(func(projName string) (result error) {
-                // TODO: validate that its an actual directory
                 if len(projName) < 1 {
                     result = fmt.Errorf("Project name cannot be empty")
                 }
