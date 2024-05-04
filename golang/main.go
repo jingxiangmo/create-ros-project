@@ -15,9 +15,6 @@ import (
     "github.com/shirou/gopsutil/v3/host"
 )
 
-// NOTE(beau): DON'T CHANGE THIS AT RUNTIME
-var abortError = fmt.Errorf("user aborted")
-
 func run() error {
     fmt.Println(
 `  ;     /        ,--.
@@ -210,7 +207,7 @@ func run() error {
 
 
     if !confirm {
-        return abortError
+        return fmt.Errorf("user aborted")
     }
 
     srcPath := filepath.Join(projectName, "src")
