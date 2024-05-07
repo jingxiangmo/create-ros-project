@@ -1,4 +1,4 @@
-module create-ros-project
+module github.com/jingxiangmo/create-ros-project
 
 go 1.22.2
 
