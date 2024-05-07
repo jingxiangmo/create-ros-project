@@ -1,5 +1,7 @@
 package main
 
+//go:generate ./generate.sh
+
 import (
     "bytes"
     "fmt"
