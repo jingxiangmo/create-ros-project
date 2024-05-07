@@ -267,6 +267,19 @@ func run() error {
     os.WriteFile("rosproject.toml", tomlbuf.Bytes(), 0644)
     os.WriteFile("README.md", []byte(fmt.Sprintf("# %s\n\n", projectName)), 0644);
 
+    // INFO(beau): how we tell the install script what distro we're installing
+    os.Setenv("CRP_ROSDISTRO", rosDistro)
+    if shouldInstallROS {
+        var execCmd string
+        if rosVersion == "ROS 1" {
+            execCmd = ubuntuROS1
+        } else {
+            // NOTE(beau): assuming ROS 2
+            execCmd = ubuntuROS2
+        }
+
+        exec.Command("sh", "-c", execCmd).Run()
+    }
 
     return nil
 }
