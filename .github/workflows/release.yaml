@@ -19,6 +19,6 @@ jobs:
     - uses: wangyoucao577/go-release-action@v1
       with:
         pre_command: "go generate"
-        github_token: ${{ secrets.GITHUB_TOKEN }}
+        github_token: ${{ secrets.GH_TOKEN }}
         goos: ${{ matrix.goos }}
         goarch: ${{ matrix.goarch }}
