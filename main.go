@@ -1,7 +1,5 @@
 package main
 
-//go:generate ./generate.sh
-
 import (
     "bytes"
     "fmt"
@@ -12,9 +10,19 @@ import (
     "path/filepath"
     "runtime"
 
+    _ "embed"
+
     "github.com/charmbracelet/huh"
     "github.com/pelletier/go-toml/v2" // already used by viper
     "github.com/shirou/gopsutil/v3/host"
+)
+
+var (
+    //go:embed ros_install_scripts/ubuntuROS1.sh
+    ubuntuROS1 string
+
+    //go:embed ros_install_scripts/ubuntuROS1.sh
+    ubuntuROS2 string
 )
 
 func run() error {
