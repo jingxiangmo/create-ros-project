@@ -8,7 +8,6 @@ import (
     "os"
     "os/exec"
     "path/filepath"
-    "runtime"
 
     _ "embed"
 
@@ -18,6 +17,32 @@ import (
 
     "github.com/go-git/go-git/v5"
 )
+
+type ROSDistro int
+const (
+    Jazzy ROSDistro = iota
+    Humble
+    Noetic
+)
+
+func (distro ROSDistro) String() string {
+    return [...]string{"ROS 2 Jazzy", "ROS 2 Humble", "ROS 1 Noetic"}[distro]
+}
+
+func (distro ROSDistro) IsRos2() bool {
+    if distro == Noetic {
+        return false
+    }
+
+    return true
+}
+
+// NOTE(beau): do not mutate. Maps each supported distro to their $ROS_DISTRO
+var rosDistroEnvVar = map[ROSDistro]string {
+    Jazzy: "jazzy",
+    Humble: "humble",
+    Noetic: "noetic",
+}
 
 type License int
 const (
@@ -31,6 +56,18 @@ func (license License) String() string {
     return [...]string{"Apache-2.0", "MIT", "BSD-3-Clause", "None"}[license]
 }
 
+type ROSInstallType int
+const (
+    DockerInstall ROSInstallType = iota
+    NativeInstall
+    ExisitingNativeInstall
+)
+
+func (install ROSInstallType) String() string {
+    return [...]string{"Docker Install (recommended)", "Native Install", "Existing Native Install"}[install]
+}
+
+// embedded files
 var (
     //go:embed ros_install_scripts/ubuntuROS1.sh
     ubuntuROS1 string
@@ -56,40 +93,18 @@ func run() error {
  /[_]\  [~]\/    |//  |
   ] [   OOO      /o|__|   ROS`)
     var (
-        OSdistro           string
-        OSversion          string
-
-        rosVersion         string
-        rosDistro          string
-
         projectName        string
 
-        // REVIEW: these are viable candidates for a config file or flags
-        cppAndOrPython     string
-        template           string
+        possibleInstalls = []ROSInstallType{DockerInstall}
+        installType        ROSInstallType
+
+        installDistro      ROSDistro
+
         license            License
         shouldInitGit      bool
-        shouldInstallROS   bool
 
         confirm            bool
     )
-
-    {
-        hostinfo, err := host.Info()
-        // REVIEW: better error handling
-        if err != nil {
-            return err
-        }
-        OSdistro, OSversion = hostinfo.Platform, hostinfo.PlatformVersion
-        fmt.Printf(
-            "OS: %s\nDistro: %s\nVersion: %s\nArch: %s\n",
-            runtime.GOOS,
-            OSdistro,
-            OSversion,
-            runtime.GOARCH,
-        )
-    }
-
 
     if err := huh.NewInput().
         Title("What is your project named?").
@@ -107,96 +122,66 @@ func run() error {
         return err
     }
 
-
-    // - https://github.com/ros-infrastructure/rospkg/blob/c8185799792c86b1c9a8df2c1a24da85c2b49b9f/src/rospkg/rosversion.py#L118-L122
-    // - https://github.com/ros-infrastructure/rospkg/blob/c8185799792c86b1c9a8df2c1a24da85c2b49b9f/src/rospkg/rosversion.py#L39-L45
-    // NOTE(beau): from
-    // very old ROS distributions don't set the ROS_DISTRO environment
-    // variable rosversion provides a way to find this that we can copy. We
-    // can't call rosversion directly because the expectation is zero
-    // dependencies. Perhaps we could optionally use it if it's available.
-    // TODO: find older ROS versions using the logic from rosversion linked
-    // above
-    rosVersion, rosDistro = os.Getenv("ROS_VERSION"), os.Getenv("ROS_DISTRO")
-    {
-        rosInstalled := len(rosVersion) > 0 && len(rosDistro) > 0
-        if rosInstalled {
-            title := fmt.Sprintf("Looks like you have ROS %s %s installed, would you like to install another ROS version instead?", rosVersion, rosDistro)
-            if err := huh.NewConfirm().
-                Title(title).
-                Value(&shouldInstallROS).
-                Run();
-            err != nil {
-                return err
-            }
-        } else {
-            shouldInstallROS = true
-        }
+    hostinfo, err := host.Info()
+    if err != nil {
+        return err
     }
 
-    if shouldInstallROS {
-        rosCompatibility := map[string]map[string]map[string]map[string][]string {
-            "ROS 1": {
-                "amd64": {
-                    "ubuntu": {
-                        "20.04": { "Noetic"  },
-                        "18.04": { "Melodic" },
-                    },
-                },
-                "arm64": {
-                    "ubuntu": {
-                        "20.04": { "Noetic"  },
-                        "18.04": { "Melodic" },
-                    },
-                },
-            },
-            "ROS 2": {
-                "amd64": {
-                    "ubuntu": {
-                        "20.04": { "Iron" },
-                        "18.04": { "Foxy" },
-                    },
-                },
-                "arm64": {
-                    "darwin": {
-                        "14.4.1": {
-                            "Test 1",
-                            "Test 2",
-                        },
-                    },
-                    "ubuntu": {
-                        "20.04": { "Iron" },
-                        "18.04": { "Foxy" },
-                    },
-                },
-            },
+    info := ""
+    // determine if native and existing installs are possible
+    if hostinfo.Platform == "ubuntu" {
+        possibleInstalls = append(possibleInstalls, NativeInstall)
+        // - https://github.com/ros-infrastructure/rospkg/blob/c8185799792c86b1c9a8df2c1a24da85c2b49b9f/src/rospkg/rosversion.py#L118-L122
+        // - https://github.com/ros-infrastructure/rospkg/blob/c8185799792c86b1c9a8df2c1a24da85c2b49b9f/src/rospkg/rosversion.py#L39-L45
+        // NOTE(beau): from
+        // very old ROS distributions don't set the ROS_DISTRO environment
+        // variable rosversion provides a way to find this that we can copy. We
+        // can't call rosversion directly because the expectation is zero
+        // dependencies. Perhaps we could optionally use it if it's available.
+        // TODO: find older ROS versions using the logic from rosversion linked
+        // above
+
+        installedDistro := os.Getenv("ROS_DISTRO")
+        for distro, distroEnvVar := range rosDistroEnvVar {
+            if installedDistro == distroEnvVar {
+                possibleInstalls = append(possibleInstalls, ExisitingNativeInstall)
+                info = fmt.Sprintf("Please select [%s] to use your existing installation of %s", ExisitingNativeInstall, distro)
+                break
+            }
         }
 
-        // TODO: find this out regardless of if we're installing
-        if err := huh.NewSelect[string]().
-            Title("Which version of ROS would you like to install?").
-            Options(huh.NewOptions("ROS 2", "ROS 1")...).
-            Value(&rosVersion).
+        if err := huh.NewSelect[ROSInstallType]().
+            Title("How do you want to install ROS?" + info).
+            Options(huh.NewOptions(possibleInstalls...)...).
+            Value(&installType).
             Run();
         err != nil {
             return err
         }
+    } else {
+        installType = DockerInstall
+    }
 
-        options, exists := rosCompatibility [rosVersion][runtime.GOARCH][OSdistro][OSversion]
-
-        if exists {
-            if err := huh.NewSelect[string]().
-                Title("Which available ROS distribution would you like to install? This is based on your current os and cpu architecture.").
-                Options(huh.NewOptions(options...)...).
-                Value(&rosDistro).
-                Run();
-             err != nil {
-                return err
-            }
-        } else {
-            return fmt.Errorf("No compatible ROS distributions available")
+    switch installType {
+    case DockerInstall:
+        if err := huh.NewSelect[ROSDistro]().
+            Title("What ROS distribution do you want to use?").
+            Options(huh.NewOptions([]ROSDistro{Jazzy, Humble, Noetic}...)...).
+            Value(&installDistro).
+            Run();
+        err != nil {
+            return err
         }
-
+        fmt.Println("Using Docker install of", installDistro)
+    case NativeInstall:
+        switch hostinfo.PlatformVersion {
+        case "20.04": installDistro = Noetic
+        case "22.04": installDistro = Humble
+        case "24.04": installDistro = Jazzy
+        default: return fmt.Errorf("Unsupported Ubuntu version %s", hostinfo.PlatformVersion)
+        }
+        fmt.Printf("Installing %s, as its compatible with your operating system\n", installDistro)
+    case ExisitingNativeInstall: fmt.Println("Using existing installation")
     }
 
     form := huh.NewForm(
@@ -205,20 +190,6 @@ func run() error {
                 Title("What license do you want to use?").
                 Options(huh.NewOptions(Apache2, MIT, BSD3, None)...).
                 Value(&license),
-            ),
-
-        huh.NewGroup(
-            huh.NewSelect[string]().
-                Title("Would like to use ROS C++ or ROS Python?").
-                Options(huh.NewOptions("C++ and Python (recommended)", "C++ only", "Python only")...).
-                Value(&cppAndOrPython),
-            ),
-
-        huh.NewGroup(
-            huh.NewSelect[string]().
-                Title("Would like to start with a project template?").
-                Options(huh.NewOptions("Basic Workspace (recommended)", "Empty Workspace")...).
-                Value(&template),
             ),
 
         huh.NewGroup(
@@ -260,12 +231,11 @@ func run() error {
     // just created the directory
 
     if shouldInitGit {
-        // TODO: handle error
-        exec.Command("git", "init").Run()
+        git.PlainInit(".", false)
 
         // get a good gitignore template
         ignoreAPI_URL := "https://www.toptal.com/developers/gitignore/api/ros"
-        if rosVersion == "ROS 2" {
+        if installDistro.IsRos2() {
             ignoreAPI_URL += "2"
         }
 
@@ -289,7 +259,7 @@ func run() error {
             "readme": "README.md",
         },
         "dependencies": {
-            "ros": rosDistro,
+            "ros": rosDistroEnvVar[installDistro],
         },
         "packages": {},
     }); err != nil {
@@ -299,16 +269,6 @@ func run() error {
     os.WriteFile("rosproject.toml", tomlbuf.Bytes(), 0644)
     os.WriteFile("README.md", []byte(fmt.Sprintf("# %s\n\n", projectName)), 0644);
 
-    // INFO(beau): how we tell the install script what distro we're installing
-    os.Setenv("CRP_ROSDISTRO", rosDistro)
-    if shouldInstallROS {
-        var execCmd string
-        if rosVersion == "ROS 1" {
-            execCmd = ubuntuROS1
-        } else {
-            // NOTE(beau): assuming ROS 2
-            execCmd = ubuntuROS2
-        }
     {
         var choice []byte
 
@@ -320,7 +280,19 @@ func run() error {
         os.WriteFile("LICENSE", choice, 0644)
     }
 
+    switch installType {
+    case DockerInstall:
+    case NativeInstall:
+        // INFO(beau): how we tell the install script what distro we're installing
+        os.Setenv("CRP_ROSDISTRO", rosDistroEnvVar[installDistro])
+        var execCmd string
+        if installDistro.IsRos2() {
+            execCmd = ubuntuROS2
+        } else {
+            execCmd = ubuntuROS1
+        }
         exec.Command("sh", "-c", execCmd).Run()
+    case ExisitingNativeInstall: // REVIEW(beau): is there anything to do here?
     }
 
     return nil
