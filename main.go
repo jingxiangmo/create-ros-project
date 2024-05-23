@@ -165,6 +165,7 @@ func run() error {
             return err
         }
     } else {
+        fmt.Println("Only Docker install is supported on non-Ubuntu systems")
         installType = DockerInstall
     }
 
