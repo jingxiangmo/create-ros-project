@@ -110,8 +110,8 @@ func run() error {
         shouldInitGit      bool
 
         confirm            bool
-    )
 
+    )
     if err := huh.NewInput().
         Title("What is your project named?").
         Prompt("? ").
@@ -278,6 +278,12 @@ func run() error {
 
     switch installType {
     case DockerInstall:
+        dockerClient, err := docker.NewClientWithOpts(docker.FromEnv, docker.WithAPIVersionNegotiation())
+        if err != nil {
+            return err
+        }
+
+        dockerClient.Close()
     case NativeInstall:
         // INFO(beau): how we tell the install script what distro we're installing
         os.Setenv("CRP_ROSDISTRO", rosDistroEnvVar[installDistro])
