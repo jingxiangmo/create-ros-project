@@ -15,6 +15,8 @@ import (
     "github.com/charmbracelet/huh"
     "github.com/pelletier/go-toml/v2" // already used by viper
     "github.com/shirou/gopsutil/v3/host"
+
+    "github.com/go-git/go-git/v5"
 )
 
 var (
