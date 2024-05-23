@@ -109,8 +109,8 @@ func run() error {
         shouldInitGit      bool
 
         confirm            bool
-
     )
+
     if err := huh.NewInput().
         Title("What is your project named?").
         Prompt("? ").
@@ -132,7 +132,6 @@ func run() error {
         return err
     }
 
-    info := ""
     // determine if native and existing installs are possible
     if hostinfo.Platform == "ubuntu" {
         possibleInstalls := []ROSInstallType{DockerInstall}
@@ -148,16 +147,17 @@ func run() error {
         // above
 
         installedDistro := os.Getenv("ROS_DISTRO")
+        existingInstallMessage := ""
         for distro, distroEnvVar := range rosDistroEnvVar {
             if installedDistro == distroEnvVar {
                 possibleInstalls = append([]ROSInstallType{ExisitingNativeInstall}, possibleInstalls...) // prepend existing to the options
-                info = fmt.Sprintf("Please select [%s] to use your existing installation of %s", ExisitingNativeInstall, distro)
+                existingInstallMessage = fmt.Sprintf("Please select [%s] to use your existing installation of %s", ExisitingNativeInstall, distro)
                 break
             }
         }
 
         if err := huh.NewSelect[ROSInstallType]().
-            Title("How do you want to install ROS? " + info).
+            Title("How do you want to install ROS? " + existingInstallMessage).
             Options(huh.NewOptions(possibleInstalls...)...).
             Value(&installType).
             Run();
