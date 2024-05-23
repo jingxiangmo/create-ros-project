@@ -19,12 +19,34 @@ import (
     "github.com/go-git/go-git/v5"
 )
 
+type License int
+const (
+    Apache2 License = iota
+    MIT
+    BSD3
+    None
+)
+
+func (license License) String() string {
+    return [...]string{"Apache-2.0", "MIT", "BSD-3-Clause", "None"}[license]
+}
+
 var (
     //go:embed ros_install_scripts/ubuntuROS1.sh
     ubuntuROS1 string
 
     //go:embed ros_install_scripts/ubuntuROS1.sh
     ubuntuROS2 string
+
+
+    //go:embed licenses/mit
+    mitLicense []byte
+
+    //go:embed licenses/apache2
+    apache2License []byte
+
+    //go:embed licenses/bsd3
+    bsd3License []byte
 )
 
 func run() error {
@@ -43,9 +65,9 @@ func run() error {
         projectName        string
 
         // REVIEW: these are viable candidates for a config file or flags
-        license            string
         cppAndOrPython     string
         template           string
+        license            License
         shouldInitGit      bool
         shouldInstallROS   bool
 
@@ -179,9 +201,9 @@ func run() error {
 
     form := huh.NewForm(
         huh.NewGroup(
-            huh.NewSelect[string]().
+            huh.NewSelect[License]().
                 Title("What license do you want to use?").
-                Options(huh.NewOptions("MIT", "Apache-2.0", "BSD")...).
+                Options(huh.NewOptions(Apache2, MIT, BSD3, None)...).
                 Value(&license),
             ),
 
@@ -263,7 +285,7 @@ func run() error {
     if err := toml.NewEncoder(&tomlbuf).Encode(map[string]map[string]string {
         "project": {
             "name": projectName,
-            "license": license,
+            "license": license.String(),
             "readme": "README.md",
         },
         "dependencies": {
@@ -287,6 +309,16 @@ func run() error {
             // NOTE(beau): assuming ROS 2
             execCmd = ubuntuROS2
         }
+    {
+        var choice []byte
+
+        switch license {
+        case Apache2: choice = apache2License
+        case MIT:     choice = mitLicense
+        case BSD3:    choice = bsd3License
+        }
+        os.WriteFile("LICENSE", choice, 0644)
+    }
 
         exec.Command("sh", "-c", execCmd).Run()
     }
