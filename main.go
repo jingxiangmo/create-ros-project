@@ -16,6 +16,8 @@ import (
     "github.com/shirou/gopsutil/v3/host"
 
     "github.com/go-git/go-git/v5"
+
+    docker "github.com/docker/docker/client"
 )
 
 type ROSDistro int
