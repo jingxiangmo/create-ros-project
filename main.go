@@ -66,10 +66,10 @@ func (install ROSInstallType) String() string {
 
 // embedded files
 var (
-    //go:embed ros_install_scripts/ubuntuROS1.sh
+    //go:embed baked_assets/ubuntuROS1-install.sh
     ubuntuROS1 string
 
-    //go:embed ros_install_scripts/ubuntuROS1.sh
+    //go:embed baked_assets/ubuntuROS1-install.sh
     ubuntuROS2 string
 
 
