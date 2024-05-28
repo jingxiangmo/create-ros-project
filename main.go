@@ -3,8 +3,6 @@ package main
 import (
     "bytes"
     "fmt"
-    "io"
-    "net/http"
     "os"
     "os/exec"
     "path/filepath"
@@ -83,6 +81,12 @@ var (
 
     //go:embed baked_assets/bsd3
     bsd3License []byte
+
+    //go:embed baked_assets/ros1.gitignore
+    ros1gitignore []byte
+
+    //go:embed baked_assets/ros2.gitignore
+    ros2gitignore []byte
 )
 
 func run() error {
@@ -222,22 +226,12 @@ func run() error {
     if shouldInitGit {
         git.PlainInit(".", false)
 
-        // get a good gitignore template
-        ignoreAPI_URL := "https://www.toptal.com/developers/gitignore/api/ros"
+        gitignoreFile := ros1gitignore
         if installDistro.IsRos2() {
-            ignoreAPI_URL += "2"
+            gitignoreFile = ros2gitignore
         }
 
-        {
-            resp, err := http.Get(ignoreAPI_URL)
-            if err != nil {
-                return err
-            }
-            // REVIEW(beau): is it safe to ignore this error since the request worked?
-            body, _ := io.ReadAll(resp.Body)
-
-            os.WriteFile(".gitignore", body, 0644)
-        }
+        os.WriteFile(".gitignore", gitignoreFile, 0644)
     }
 
     tomlbuf := bytes.Buffer{}
