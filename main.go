@@ -75,13 +75,13 @@ var (
     ubuntuROS2 string
 
 
-    //go:embed licenses/mit
+    //go:embed baked_assets/mit
     mitLicense []byte
 
-    //go:embed licenses/apache2
+    //go:embed baked_assets/apache2
     apache2License []byte
 
-    //go:embed licenses/bsd3
+    //go:embed baked_assets/bsd3
     bsd3License []byte
 )
 
