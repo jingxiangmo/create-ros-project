@@ -48,11 +48,16 @@ disturbingly often) and also any libraries we use. More dependencies complicates
 installation and development.
 
 ## Installation
-```
-git clone https://github.com/jingxiangmo/create-ros-project && cd create-ros-project && sudo python3 setup.py install && python3 src/main.py
+
+Build from source:
+
+```bash
+git clone https://github.com/jingxiangmo/create-ros-project && cd create-ros-project && go build .
 ```
 
-## Features
+Pre-built binaries: (coming soon)
+
+## Possible Future Features
 
 Config file and flags. If people want to specify defaults they need from the CLI
 up front, then they can pass a flag or set something in the config file.
@@ -68,6 +73,7 @@ To this end, the go version is a
 CLI apps and parsing out flags and arguments, and viper is a config file parser.
 
 ## Roadmap
+
 #### 1. ROS installer and project creator
 
   A [create react app](https://create-react-app.dev) like developer experience for installing ROS and setting up a ROS project.
@@ -90,18 +96,16 @@ A [Poetry](https://python-poetry.org) like developer experience for managing ROS
 Make it easy to experiment and test out different perception, obstacle avoidance, and other machine learning models.
 
 
-## Current Supports
-(MORE SUPPORT COMING SOON! CRP currently support the most used ROS distribution and platform. Since this is a relatively new project, the current supports are for my current projects with my research teams and competition teams. If you have a specific version you would like to request, please let me know.)
-#### ROS 1
+## Supported ROS distributions
 
-~~- Neotic, Ubuntu 20.04 (arm64 and amd64)~~
+We've chosen to initially support only ROS distros that haven't hit end of life, and won't by the end of the year:
 
-~~- Melodic, Ubuntu 18.04.6 (arm 64 and amd64)~~
+- ROS 2 Jazzy
+- ROS 2 Humble
+- ROS 2 Noetic
 
-#### ROS 2
-~~- Iron, Ubuntu 22.04 (arm 64 and amd64)~~
-- Foxy, Ubuntu 20.04 (arm64 and amd64)
-
+Please file an issue or a PR if you're interested in supporting other ROS distributions
 
 ## Contribute
+
 Please create PR or open up an issue. Thank you for your support!
