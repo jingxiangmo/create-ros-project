@@ -2,6 +2,19 @@
 
 Getting started, setting up, and managing ROS dependencies is hard. CRP helps you install, setup, and manage your robotics projects with one command.
 
+## Usage
+
+Simply run the app from a terminal and answer the prompts. Arrow keys and enter
+work as expected.
+
+```bash
+# from folder containing the executable
+./create-ros-project
+
+# if in PATH
+create-ros-project
+```
+
 ## Why Golang?
 
 We want to have a trivial install process and a single command to run to get a
