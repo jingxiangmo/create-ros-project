@@ -3,8 +3,6 @@ package main
 import (
     "bytes"
     "fmt"
-    "io"
-    "net/http"
     "os"
     "os/exec"
     "path/filepath"
@@ -68,21 +66,27 @@ func (install ROSInstallType) String() string {
 
 // embedded files
 var (
-    //go:embed ros_install_scripts/ubuntuROS1.sh
+    //go:embed baked_assets/ubuntuROS1-install.sh
     ubuntuROS1 string
 
-    //go:embed ros_install_scripts/ubuntuROS1.sh
+    //go:embed baked_assets/ubuntuROS1-install.sh
     ubuntuROS2 string
 
 
-    //go:embed licenses/mit
+    //go:embed baked_assets/mit
     mitLicense []byte
 
-    //go:embed licenses/apache2
+    //go:embed baked_assets/apache2
     apache2License []byte
 
-    //go:embed licenses/bsd3
+    //go:embed baked_assets/bsd3
     bsd3License []byte
+
+    //go:embed baked_assets/ros1.gitignore
+    ros1gitignore []byte
+
+    //go:embed baked_assets/ros2.gitignore
+    ros2gitignore []byte
 )
 
 func run() error {
@@ -143,7 +147,7 @@ func run() error {
         installedDistro := os.Getenv("ROS_DISTRO")
         for distro, distroEnvVar := range rosDistroEnvVar {
             if installedDistro == distroEnvVar {
-                possibleInstalls = append(possibleInstalls, ExisitingNativeInstall)
+                possibleInstalls = append([]ROSInstallType{ExisitingNativeInstall}, possibleInstalls...) // prepend existing to the options
                 info = fmt.Sprintf("Please select [%s] to use your existing installation of %s", ExisitingNativeInstall, distro)
                 break
             }
@@ -222,22 +226,12 @@ func run() error {
     if shouldInitGit {
         git.PlainInit(".", false)
 
-        // get a good gitignore template
-        ignoreAPI_URL := "https://www.toptal.com/developers/gitignore/api/ros"
+        gitignoreFile := ros1gitignore
         if installDistro.IsRos2() {
-            ignoreAPI_URL += "2"
+            gitignoreFile = ros2gitignore
         }
 
-        {
-            resp, err := http.Get(ignoreAPI_URL)
-            if err != nil {
-                return err
-            }
-            // REVIEW(beau): is it safe to ignore this error since the request worked?
-            body, _ := io.ReadAll(resp.Body)
-
-            os.WriteFile(".gitignore", body, 0644)
-        }
+        os.WriteFile(".gitignore", gitignoreFile, 0644)
     }
 
     tomlbuf := bytes.Buffer{}
