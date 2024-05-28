@@ -147,7 +147,7 @@ func run() error {
         installedDistro := os.Getenv("ROS_DISTRO")
         for distro, distroEnvVar := range rosDistroEnvVar {
             if installedDistro == distroEnvVar {
-                possibleInstalls = append(possibleInstalls, ExisitingNativeInstall)
+                possibleInstalls = append([]ROSInstallType{ExisitingNativeInstall}, possibleInstalls...) // prepend existing to the options
                 info = fmt.Sprintf("Please select [%s] to use your existing installation of %s", ExisitingNativeInstall, distro)
                 break
             }
