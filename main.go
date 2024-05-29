@@ -171,7 +171,16 @@ func run() error {
         case "20.04": installDistro = Noetic
         case "22.04": installDistro = Humble
         case "24.04": installDistro = Jazzy
-        default: return fmt.Errorf("Unsupported Ubuntu version %s", hostinfo.PlatformVersion)
+        default:
+            // return fmt.Errorf("Unsupported Ubuntu version %s", hostinfo.PlatformVersion)
+            if err := huh.NewSelect[ROSDistro]().
+                Title("Which ROS distribution would you like to use?").
+                Options(huh.NewOptions(Jazzy, Humble, Noetic)...).
+                Value(&installDistro).
+                Run();
+            err != nil {
+                return err
+            }
         }
         fmt.Printf("Installing %s, as its compatible with your operating system\n", installDistro)
     case ExisitingNativeInstall: fmt.Println("Using existing installation")
