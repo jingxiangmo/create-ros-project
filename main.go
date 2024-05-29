@@ -132,7 +132,7 @@ func run() error {
 
     info := ""
     // determine if native and existing installs are possible
-    if hostinfo.Platform == "ubuntu" {
+    if hostinfo.PlatformFamily == "debian" {
         possibleInstalls = append(possibleInstalls, NativeInstall)
         // - https://github.com/ros-infrastructure/rospkg/blob/c8185799792c86b1c9a8df2c1a24da85c2b49b9f/src/rospkg/rosversion.py#L118-L122
         // - https://github.com/ros-infrastructure/rospkg/blob/c8185799792c86b1c9a8df2c1a24da85c2b49b9f/src/rospkg/rosversion.py#L39-L45
