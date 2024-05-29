@@ -273,7 +273,15 @@ func run() error {
         } else {
             execCmd = ubuntuROS1
         }
-        exec.Command("sh", "-c", execCmd).Run()
+        process := exec.Command("sh", "-c", execCmd)
+
+        process.Stdin  = os.Stdin
+        process.Stdout = os.Stdout
+        process.Stderr = os.Stderr
+
+        if err := process.Run(); err != nil {
+            return err
+        }
     case ExisitingNativeInstall: // REVIEW(beau): is there anything to do here?
     }
 
