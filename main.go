@@ -154,7 +154,7 @@ func run() error {
         }
 
         if err := huh.NewSelect[ROSInstallType]().
-            Title("How do you want to install ROS?" + info).
+            Title("How do you want to install ROS? " + info).
             Options(huh.NewOptions(possibleInstalls...)...).
             Value(&installType).
             Run();
