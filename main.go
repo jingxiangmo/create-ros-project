@@ -14,6 +14,8 @@ import (
     "github.com/shirou/gopsutil/v3/host"
 
     "github.com/go-git/go-git/v5"
+
+    docker "github.com/docker/docker/client"
 )
 
 type ROSDistro int
@@ -56,12 +58,13 @@ func (license License) String() string {
 
 type ROSInstallType int
 const (
-    NativeInstall ROSInstallType = iota
+    DockerInstall ROSInstallType = iota
+    NativeInstall
     ExisitingNativeInstall
 )
 
 func (install ROSInstallType) String() string {
-    return [...]string{"Native Install", "Existing Native Install"}[install]
+    return [...]string{"Docker Install (recommended)", "Native Install", "Existing Native Install"}[install]
 }
 
 // embedded files
@@ -98,7 +101,7 @@ func run() error {
     var (
         projectName        string
 
-        possibleInstalls   []ROSInstallType
+        possibleInstalls = []ROSInstallType{DockerInstall}
         installType        ROSInstallType
 
         installDistro      ROSDistro
@@ -162,10 +165,20 @@ func run() error {
             return err
         }
     } else {
-        return fmt.Errorf("Unsupported operating system: %s %s", hostinfo.Platform, hostinfo.PlatformVersion)
+        installType = DockerInstall
     }
 
     switch installType {
+    case DockerInstall:
+        if err := huh.NewSelect[ROSDistro]().
+            Title("What ROS distribution do you want to use?").
+            Options(huh.NewOptions([]ROSDistro{Jazzy, Humble, Noetic}...)...).
+            Value(&installDistro).
+            Run();
+        err != nil {
+            return err
+        }
+        fmt.Println("Using Docker install of", installDistro)
     case NativeInstall:
         switch hostinfo.PlatformVersion {
         case "20.04": installDistro = Noetic
@@ -264,6 +277,7 @@ func run() error {
     }
 
     switch installType {
+    case DockerInstall:
     case NativeInstall:
         // INFO(beau): how we tell the install script what distro we're installing
         os.Setenv("CRP_ROSDISTRO", rosDistroEnvVar[installDistro])
