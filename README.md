@@ -1,6 +1,18 @@
-# Create ROS Project (WIP 🔨)
+# Create ROS Project
 
 Getting started, setting up, and managing ROS dependencies is hard. CRP helps you install, setup, and manage your robotics projects with one command.
+
+<p align="center">
+  <img src="https://cln.sh/xtYr5V8D/download" alt="CRP video"/>
+</p>
+
+## Installation
+
+Build from source:
+
+```bash
+git clone https://github.com/jingxiangmo/create-ros-project && cd create-ros-project && go build .
+```
 
 ## Usage
 
@@ -40,22 +52,6 @@ build what we need to with satisfactory technical properties and move on with ou
 lives. Alternatives such as rust and c++ share potentially similar desirable
 technical properties and CLI ecosystems, but come with enormous complexity.
 
-### Why not python?
-
-Python introduces at the very least a dependency on python itself (and probably
-a limited range of python versions because they break their standard library
-disturbingly often) and also any libraries we use. More dependencies complicates
-installation and development.
-
-## Installation
-
-Build from source:
-
-```bash
-git clone https://github.com/jingxiangmo/create-ros-project && cd create-ros-project && go build .
-```
-
-Pre-built binaries: (coming soon)
 
 ## Possible Future Features
 
@@ -72,39 +68,6 @@ To this end, the go version is a
 [viper](https://github.com/spf13/viper) project. Cobra is a framework for making
 CLI apps and parsing out flags and arguments, and viper is a config file parser.
 
-## Roadmap
-
-#### 1. ROS installer and project creator
-
-  A [create react app](https://create-react-app.dev) like developer experience for installing ROS and setting up a ROS project.
-
-  **Goals**
-  - ROS installer that supports major ROS 1 and 2 distributions on Ubuntu and MacOS.
-  - ROS system level dependency management.
-  - Project templates.
-
-#### 2. Gather feedback and improve installer & creator
-
-Understand the ROS community needs and what could be improved.
-
-#### 3. Packages manager [TBD]
-
-A [Poetry](https://python-poetry.org) like developer experience for managing ROS packages.
-
-#### 4. Model replacements and environment [TBD]
-
-Make it easy to experiment and test out different perception, obstacle avoidance, and other machine learning models.
-
-
-## Supported ROS distributions
-
-We've chosen to initially support only ROS distros that haven't hit end of life, and won't by the end of the year:
-
-- ROS 2 Jazzy
-- ROS 2 Humble
-- ROS 2 Noetic
-
-Please file an issue or a PR if you're interested in supporting other ROS distributions
 
 ## Contribute
 
